@@ -80,16 +80,16 @@ void CPLS2View::OnDraw(CDC* pDC)
 
 	// TODO: 여기에 원시 데이터에 대한 그리기 코드를 추가합니다.
 	int i = 0;
-	for (i = 0; i <= ls.count_input; i++) {
-		if (ls.in[i].clicked.x != 0 && ls.in[i].clicked.y != 0)
+	for (i = 0; i <= pDoc->ls.count_input; i++) {
+		if (pDoc->ls.in[i].clicked.x != 0 && pDoc->ls.in[i].clicked.y != 0)
 		{
-			pDC->Rectangle(ls.in[i].min.x*10, ls.in[i].min.y*10, ls.in[i].max.x*10, ls.in[i].max.y*10);
+			pDC->Rectangle(pDoc->ls.in[i].min.x*10, pDoc->ls.in[i].min.y*10, pDoc->ls.in[i].max.x*10, pDoc->ls.in[i].max.y*10);
 		}
 	}
-	for (i = 0; i <= ls.count_output; i++) {
-		if (ls.out[i].clicked.x != 0 && ls.out[i].clicked.y != 0)
+	for (i = 0; i <= pDoc->ls.count_output; i++) {
+		if (pDoc->ls.out[i].clicked.x != 0 && pDoc->ls.out[i].clicked.y != 0)
 		{
-			pDC->Ellipse(ls.out[i].min.x * 10, ls.out[i].min.y * 10, ls.out[i].max.x * 10, ls.out[i].max.y * 10);
+			pDC->Ellipse(pDoc->ls.out[i].min.x * 10, pDoc->ls.out[i].min.y * 10, pDoc->ls.out[i].max.x * 10, pDoc->ls.out[i].max.y * 10);
 		}
 	}
 }
@@ -141,36 +141,37 @@ CPLS2Doc* CPLS2View::GetDocument() const // 디버그되지 않은 버전은 인라인으로 지
 void CPLS2View::OnLButtonDown(UINT nFlags, CPoint point)
 {
 	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
+	CPLS2Doc* pDoc = GetDocument();
 	CClientDC dc(this);
 	CPoint p1 = DividedByTen(point);
 	CPoint pointofpif{ p1.x / 10, p1.y / 10 };
-	if (ls.create >= 0) {
-		switch (ls.create) {
+	if (pDoc->ls.create >= 0) {
+		switch (pDoc->ls.create) {
 		case LSINPUT:
-			ls.create_input(&ls.in[ls.count_input], pointofpif);
-			ls.create = -1;
+			pDoc->ls.create_input(&pDoc->ls.in[pDoc->ls.count_input], pointofpif);
+			pDoc->ls.create = -1;
 			Invalidate();
 			break;
 		case LSOUTPUT:
-			ls.create_output(&ls.out[ls.count_output], pointofpif);
-			ls.create = -1;
+			pDoc->ls.create_output(&pDoc->ls.out[pDoc->ls.count_output], pointofpif);
+			pDoc->ls.create = -1;
 			Invalidate();
 			break;
 		}
 	}
 	else {
-		if (ls.pif[p1.x / 10][p1.y / 10].gate == input) {
-			ls.pif[p1.x / 10][p1.y / 10].value = ls.in[ls.pif[p1.x / 10][p1.y / 10].input].value;
+		if (pDoc->ls.pif[p1.x / 10][p1.y / 10].gate == input) {
+			pDoc->ls.pif[p1.x / 10][p1.y / 10].value = pDoc->ls.in[pDoc->ls.pif[p1.x / 10][p1.y / 10].input].value;
 			startline = p1;
 			drawline = TRUE;
 		}
-		else if (ls.pif[p1.x / 10][p1.y / 10].gate == output) {
-			ls.pif[p1.x / 10][p1.y / 10].value = ls.out[ls.pif[p1.x / 10][p1.y / 10].output].value;
+		else if (pDoc->ls.pif[p1.x / 10][p1.y / 10].gate == output) {
+			pDoc->ls.pif[p1.x / 10][p1.y / 10].value = pDoc->ls.out[pDoc->ls.pif[p1.x / 10][p1.y / 10].output].value;
 			startline = p1;
 			drawline = TRUE;
 		}
-		else if (ls.pif[p1.x / 10][p1.y / 10].gate == line) {
-			ls.pif[p1.x / 10][p1.y / 10].value = ls.out[ls.pif[p1.x / 10][p1.y / 10].output].value;
+		else if (pDoc->ls.pif[p1.x / 10][p1.y / 10].gate == line) {
+			pDoc->ls.pif[p1.x / 10][p1.y / 10].value = pDoc->ls.out[pDoc->ls.pif[p1.x / 10][p1.y / 10].output].value;
 			startline = p1;
 			drawline = TRUE;
 		}
@@ -190,11 +191,12 @@ void CPLS2View::OnLButtonUp(UINT nFlags, CPoint point)
 void CPLS2View::OnMouseMove(UINT nFlags, CPoint point)
 {
 	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
+	CPLS2Doc* pDoc = GetDocument();
 	CClientDC dc(this);
 	CPoint p1 = DividedByTen(point);
 	CPoint pointofpif{ p1.x / 10, p1.y / 10 };
-	if (ls.create >= 0) {
-		switch (ls.create) {
+	if (pDoc->ls.create >= 0) {
+		switch (pDoc->ls.create) {
 		case LSINPUT:
 			if (point.x % 5 == 0 || point.y % 5 == 0) {
 				Invalidate();
@@ -216,14 +218,16 @@ void CPLS2View::OnMouseMove(UINT nFlags, CPoint point)
 void CPLS2View::Create_Input_BCLK()
 {
 	// TODO: 여기에 명령 처리기 코드를 추가합니다.
-	ls.count_input++;
-	ls.create = LSINPUT;
+	CPLS2Doc* pDoc = GetDocument();
+	pDoc->ls.count_input++;
+	pDoc->ls.create = LSINPUT;
 }
 
 
 void CPLS2View::Create_Output_BCLK()
 {
 	// TODO: 여기에 명령 처리기 코드를 추가합니다.
-	ls.count_output++;
-	ls.create = LSOUTPUT;
+	CPLS2Doc* pDoc = GetDocument();
+	pDoc->ls.count_output++;
+	pDoc->ls.create = LSOUTPUT;
 }

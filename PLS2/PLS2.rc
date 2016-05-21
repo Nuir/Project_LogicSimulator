@@ -289,7 +289,7 @@ END
 STRINGTABLE
 BEGIN
     IDR_MAINFRAME           "PLS2"
-    IDR_PLS2TYPE            "\nPLS2\nPLS2\nPLS2 Files (*.sdi)\n.sdi\nPLS2.Document\nPLS2.Document"
+    IDR_PLS2TYPE            "\nPLS2\nPLS2\nPLS2 Files (*.mdi)\n.mdi\nPLS2.Document\nPLS2.Document"
 END
 
 STRINGTABLE

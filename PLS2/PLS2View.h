@@ -3,7 +3,6 @@
 //
 
 #pragma once
-#include "LogicSimulator.h"
 
 class CPLS2View : public CView
 {
@@ -17,7 +16,6 @@ public:
 
 //로직 시뮬레이터 변수입니다.
 public:
-	LogicSimulator ls;
 	BOOL drawline = FALSE;
 	CPoint startline;
 	

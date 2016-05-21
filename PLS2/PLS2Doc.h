@@ -4,13 +4,17 @@
 
 
 #pragma once
-
+#include "LogicSimulator.h"
 
 class CPLS2Doc : public CDocument
 {
 protected: // serialization에서만 만들어집니다.
 	CPLS2Doc();
 	DECLARE_DYNCREATE(CPLS2Doc)
+// 로직시뮬레이터 변수입니다.
+public:
+	LogicSimulator ls;
+
 
 // 특성입니다.
 public:
