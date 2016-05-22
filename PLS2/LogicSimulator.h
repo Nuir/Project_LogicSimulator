@@ -6,9 +6,14 @@
 #define LSINPUT 0
 #define LSOUTPUT 1
 
+
 //enum변수입니다.
 enum WhatGate { nothing, input, output, line };
+///////////////////////////////////////////////////
+enum WhereFixed { DEFAULT, SERO, GARO }; // 그림그릴 때 가로가 고정되었나 세로가 고정되었나?
 
+
+///////////////////////////////////////////////////
 class LogicSimulator
 {
 
@@ -64,7 +69,37 @@ public:
 	PointInfo pif[INDEX][INDEX];
 	Input in[INDEX];
 	Output out[INDEX];
+	///////<내가 건드린 부분.>////////////////////
+	
+	CPoint downPoint;
+	CPoint upPoint;
 
+	struct TwoPt {
+
+		CPoint firstPt;
+		CPoint secondPt;
+		TwoPt() {
+
+		}
+
+		TwoPt(CPoint a, CPoint b) {
+			firstPt = a;
+			secondPt = b;
+		}
+
+	};
+
+	TwoPt GetTwoPt(CPoint a, CPoint b) {
+		TwoPt *p;
+		p = new TwoPt(a,b);
+		return *p;
+	}
+
+	CArray<TwoPt, TwoPt&> line; // TwoPoint의 배열.
+
+	WhereFixed wherefixed = DEFAULT;
+
+	//////////////////////////////////////////////
 	WhatGate whatgate = nothing;
 
 	int count_input = -1;
