@@ -203,8 +203,16 @@ void CPLS2View::OnLButtonUp(UINT nFlags, CPoint point)
 
 	SavePointOnTheLine(); // 선에대한 점을 저장.
 
+	
+
 	Invalidate();
 	///////////////////////////////////////////////////
+
+	//이게 있어야 이전에 그렸던게 안없어짐.
+	old_start.x = 0;
+	old_start.y = 0;
+	old_end.x = 0;
+	old_end.y = 0;
 
 	CView::OnLButtonUp(nFlags, point);
 }
