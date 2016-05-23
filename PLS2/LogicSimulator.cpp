@@ -82,5 +82,41 @@ void LogicSimulator::create_output(Output *out, CPoint clicked)
 	}
 }
 
+void LogicSimulator::SavePointOnTheLine(CPoint old_start, CPoint old_end, WhereFixed old_wherefixed) { // 그려진 선에 대한 점을 저장한다.
+
+	CPoint tempP;
+
+	if (old_start == old_end)
+		return;
+
+	if (old_wherefixed == GARO)
+		if (old_start.y == old_end.y) { // 1줄만 그리는경우.
+			 line.Add( GetTwoPt(old_start, old_end));
+		}
+
+		else {//두줄을 그려줘야 하는 경우.
+			tempP.x = old_end.x;
+			tempP.y = old_start.y;
+			 line.Add( GetTwoPt(old_start, tempP));
+
+			tempP.x = old_end.x;
+			tempP.y = old_start.y;
+			 line.Add( GetTwoPt(tempP, old_end));
+		}
+	else if (old_wherefixed == SERO) {
+		if (old_start.x == old_end.x) { // 1줄만 그리는경우.
+			 line.Add( GetTwoPt(old_start, old_end));
+		}
+		else {//두줄을 그려줘야 하는 경우.
+			tempP.x = old_start.x;
+			tempP.y = old_end.y;
+			 line.Add( GetTwoPt(old_start, tempP));
+
+			tempP.x = old_start.x;
+			tempP.y = old_end.y;
+			 line.Add( GetTwoPt(tempP, old_end));
+		}
+	}
+}
 
 

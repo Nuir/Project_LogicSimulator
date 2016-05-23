@@ -208,7 +208,7 @@ void CPLS2View::OnLButtonUp(UINT nFlags, CPoint point)
 	CClientDC dc(this);
 	pDoc->ls.upPoint = DividedByTen(point); //마우스를 누르기 시작한 지점의 좌표를 받을 수 있음.
 
-	SavePointOnTheLine(); // 선에대한 점을 저장.
+	pDoc->ls.SavePointOnTheLine(old_start, old_end, old_wherefixed); // 선에대한 점을 저장.
 
 	Invalidate();
 
@@ -221,43 +221,7 @@ void CPLS2View::OnLButtonUp(UINT nFlags, CPoint point)
 	CView::OnLButtonUp(nFlags, point);
 }
 
-void CPLS2View::SavePointOnTheLine() { // 그려진 선에 대한 점을 저장한다.
-	CPLS2Doc* pDoc = GetDocument();
 
-	CPoint tempP;
-
-	if (old_start == old_end)
-		return;
-
-	if (old_wherefixed == GARO)
-		if (old_start.y == old_end.y) { // 1줄만 그리는경우.
-			pDoc->ls.line.Add(pDoc->ls.GetTwoPt(old_start, old_end));
-		}
-
-		else {//두줄을 그려줘야 하는 경우.
-			tempP.x = old_end.x;
-			tempP.y = old_start.y;
-			pDoc->ls.line.Add(pDoc->ls.GetTwoPt(old_start, tempP));
-
-			tempP.x = old_end.x;
-			tempP.y = old_start.y;
-			pDoc->ls.line.Add(pDoc->ls.GetTwoPt(tempP, old_end));
-		}
-	else if (old_wherefixed == SERO) {
-		if (old_start.x == old_end.x) { // 1줄만 그리는경우.
-			pDoc->ls.line.Add(pDoc->ls.GetTwoPt(old_start, old_end));
-		}
-		else {//두줄을 그려줘야 하는 경우.
-			tempP.x = old_start.x;
-			tempP.y = old_end.y;
-			pDoc->ls.line.Add(pDoc->ls.GetTwoPt(old_start, tempP));
-
-			tempP.x = old_start.x;
-			tempP.y = old_end.y;
-			pDoc->ls.line.Add(pDoc->ls.GetTwoPt(tempP, old_end));
-		}
-	}
-}
 
 void CPLS2View::OnMouseMove(UINT nFlags, CPoint point)
 {

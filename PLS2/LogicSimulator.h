@@ -92,6 +92,8 @@ public:
 	}
 
 	CArray<TwoPt, TwoPt&> line; // TwoPointÀÇ ¹è¿­.
+	void SavePointOnTheLine(CPoint old_start, CPoint old_end, WhereFixed old_wherefixed);
+
 
 	WhereFixed wherefixed = DEFAULT;
 

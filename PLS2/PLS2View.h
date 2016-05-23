@@ -42,8 +42,6 @@ protected:
 	CPoint old_start; //drawingline에서 이전에 그려진걸 지워주기 위한것.
 	CPoint old_end; //drawingline에서 이전에 그려진걸 지워주기 위한것.
 	WhereFixed old_wherefixed; //drawingline에서 이전에 그려진걸 지워주기 위한것.
-
-	void SavePointOnTheLine();
 	//////////////////////////////////////////////////////////////////
 // 구현입니다.
 public:
