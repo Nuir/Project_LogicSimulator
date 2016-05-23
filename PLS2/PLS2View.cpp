@@ -74,18 +74,33 @@ CPoint CPLS2View::DividedByTen(CPoint point)
 void CPLS2View::OnDraw(CDC* pDC)
 {
 	CPLS2Doc* pDoc = GetDocument();
+
 	ASSERT_VALID(pDoc);
 	if (!pDoc)
 		return;
 
 	// TODO: 여기에 원시 데이터에 대한 그리기 코드를 추가합니다.
 	int i = 0;
+
+	//격자를 그림
+	for (int i = 0; i < 300; i++)
+		for (int j = 0; j < 300; j++)
+			pDC->SetPixel(i * 10, j * 10, RGB(0, 0, 0));
+
+	//그려진 선을 그림
+	for (int i = 0; i < pDoc->ls.line.GetSize(); i++) {
+		pDC->MoveTo(pDoc->ls.line[i].firstPt);
+		pDC->LineTo(pDoc->ls.line[i].secondPt);
+	}
+
+	//존재하는 input단자의 개수만큼 그려줌.(Rectangle이므로 min(왼쪽끝)점과 max(오른쪽)점을 가짐)
 	for (i = 0; i <= pDoc->ls.count_input; i++) {
 		if (pDoc->ls.in[i].clicked.x != 0 && pDoc->ls.in[i].clicked.y != 0)
 		{
 			pDC->Rectangle(pDoc->ls.in[i].min.x*10, pDoc->ls.in[i].min.y*10, pDoc->ls.in[i].max.x*10, pDoc->ls.in[i].max.y*10);
 		}
 	}
+	//존재하는 output단자의 개수만큼 그려줌.(Ellipse이므로 min(왼쪽끝)점과 max(오른쪽)점을 가짐)
 	for (i = 0; i <= pDoc->ls.count_output; i++) {
 		if (pDoc->ls.out[i].clicked.x != 0 && pDoc->ls.out[i].clicked.y != 0)
 		{
@@ -136,8 +151,6 @@ CPLS2Doc* CPLS2View::GetDocument() const // 디버그되지 않은 버전은 인라인으로 지
 
 
 // CPLS2View 메시지 처리기
-
-
 void CPLS2View::OnLButtonDown(UINT nFlags, CPoint point)
 {
 	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
@@ -145,11 +158,14 @@ void CPLS2View::OnLButtonDown(UINT nFlags, CPoint point)
 	CClientDC dc(this);
 	CPoint p1 = DividedByTen(point);
 	CPoint pointofpif{ p1.x / 10, p1.y / 10 };
+	pDoc->ls.downPoint = DividedByTen(point); //마우스를 누르기 시작한 지점의 좌표를 받을 수 있음.
+	
+	// 단자 또는 게이트를 생성한다고 할고있을 때.
 	if (pDoc->ls.create >= 0) {
 		switch (pDoc->ls.create) {
 		case LSINPUT:
 			pDoc->ls.create_input(&pDoc->ls.in[pDoc->ls.count_input], pointofpif);
-			pDoc->ls.create = -1;
+			pDoc->ls.create = -1; // 마우스를 누르는 순간 그 위치에 그려지게 되므로 초기값으로 돌려줌.
 			Invalidate();
 			break;
 		case LSOUTPUT:
@@ -159,7 +175,11 @@ void CPLS2View::OnLButtonDown(UINT nFlags, CPoint point)
 			break;
 		}
 	}
+
 	else {
+	}
+	/* //여기서 선을 그릴 수 있는 곳인지 판단.
+	else { // 그밖에 선을 그린다고 알고있을 때.
 		if (pDoc->ls.pif[p1.x / 10][p1.y / 10].gate == input) {
 			pDoc->ls.pif[p1.x / 10][p1.y / 10].value = pDoc->ls.in[pDoc->ls.pif[p1.x / 10][p1.y / 10].input].value;
 			startline = p1;
@@ -176,6 +196,7 @@ void CPLS2View::OnLButtonDown(UINT nFlags, CPoint point)
 			drawline = TRUE;
 		}
 	}
+	*/
 	CView::OnLButtonDown(nFlags, point);
 }
 
@@ -183,10 +204,60 @@ void CPLS2View::OnLButtonDown(UINT nFlags, CPoint point)
 void CPLS2View::OnLButtonUp(UINT nFlags, CPoint point)
 {
 	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
+	CPLS2Doc* pDoc = GetDocument();
+	CClientDC dc(this);
+	pDoc->ls.upPoint = DividedByTen(point); //마우스를 누르기 시작한 지점의 좌표를 받을 수 있음.
+
+	SavePointOnTheLine(); // 선에대한 점을 저장.
+
+	Invalidate();
+
+	//이게 있어야 이전에 그렸던게 안없어짐.
+	old_start.x = 0;
+	old_start.y = 0;
+	old_end.x = 0;
+	old_end.y = 0;
 
 	CView::OnLButtonUp(nFlags, point);
 }
 
+void CPLS2View::SavePointOnTheLine() { // 그려진 선에 대한 점을 저장한다.
+	CPLS2Doc* pDoc = GetDocument();
+
+	CPoint tempP;
+
+	if (old_start == old_end)
+		return;
+
+	if (old_wherefixed == GARO)
+		if (old_start.y == old_end.y) { // 1줄만 그리는경우.
+			pDoc->ls.line.Add(pDoc->ls.GetTwoPt(old_start, old_end));
+		}
+
+		else {//두줄을 그려줘야 하는 경우.
+			tempP.x = old_end.x;
+			tempP.y = old_start.y;
+			pDoc->ls.line.Add(pDoc->ls.GetTwoPt(old_start, tempP));
+
+			tempP.x = old_end.x;
+			tempP.y = old_start.y;
+			pDoc->ls.line.Add(pDoc->ls.GetTwoPt(tempP, old_end));
+		}
+	else if (old_wherefixed == SERO) {
+		if (old_start.x == old_end.x) { // 1줄만 그리는경우.
+			pDoc->ls.line.Add(pDoc->ls.GetTwoPt(old_start, old_end));
+		}
+		else {//두줄을 그려줘야 하는 경우.
+			tempP.x = old_start.x;
+			tempP.y = old_end.y;
+			pDoc->ls.line.Add(pDoc->ls.GetTwoPt(old_start, tempP));
+
+			tempP.x = old_start.x;
+			tempP.y = old_end.y;
+			pDoc->ls.line.Add(pDoc->ls.GetTwoPt(tempP, old_end));
+		}
+	}
+}
 
 void CPLS2View::OnMouseMove(UINT nFlags, CPoint point)
 {
@@ -195,6 +266,10 @@ void CPLS2View::OnMouseMove(UINT nFlags, CPoint point)
 	CClientDC dc(this);
 	CPoint p1 = DividedByTen(point);
 	CPoint pointofpif{ p1.x / 10, p1.y / 10 };
+	CPoint movedFirstPoint = DividedByTen(p1); // 마우스를 처음 누른 뒤 움직인 첫 위치
+	CPoint startPoint = DividedByTen(pDoc->ls.downPoint);
+
+	//"pDoc->ls.create >= 0" 이 상태는 단자 또는 게이트를 메뉴에서 클릭하여 그리려고 하는 상태임.
 	if (pDoc->ls.create >= 0) {
 		switch (pDoc->ls.create) {
 		case LSINPUT:
@@ -211,7 +286,105 @@ void CPLS2View::OnMouseMove(UINT nFlags, CPoint point)
 			break;
 		}
 	}
+
+	//"pDoc->ls.create < 0 && nFlags & MK_LBUTTON" 이 상태는 메뉴의 게이트 또는 단자를 클릭하지 않은 상태이며 마우스가 눌린상태,, 선을 그릴 수 있음. 
+	if (pDoc->ls.create < 0 && nFlags & MK_LBUTTON) {
+		//pDoc->ls.pif[p1.x / 10][p1.y / 10]->linevalue = pDoc->ls.pif[startline.x / 10][startline.y / 10]->linevalue;
+		//pDoc->ls.pif[p1.x / 10][p1.y / 10].gate = pDoc->ls.  /*->ls->isline*/;
+
+		//(초기상태)그림을 그릴때 어디가(가로,세로) 고정되는지 정해져 있지 않고 마우스를 누른위치와 현재마우스의 위치가 다르다면 가로 세로 중에서 한쪽으로 고정을 시켜줌.
+		if (pDoc->ls.wherefixed == DEFAULT &&  startPoint != p1) {
+
+			if (startPoint.y == p1.y) // 가로로 고정되어서 그려지는 경우
+				pDoc->ls.wherefixed = GARO;
+
+			else if (startPoint.x == p1.x) // 세로로 고정되어서 그려지는 경우
+				pDoc->ls.wherefixed = SERO;
+		}
+
+		//선을 저장하지는 않고 움진인 위치로 그리기만 함.
+		drawingline(startPoint, p1, pDoc->ls.wherefixed);
+
+		//고정된 것을 초기상태로 돌려줘야 할 때 (초기상태)로 돌려줌.
+		if (pDoc->ls.wherefixed == GARO && startPoint.x == p1.x || startPoint == p1) 
+			pDoc->ls.wherefixed = DEFAULT;
+
+		else if (pDoc->ls.wherefixed == SERO && startPoint.y == p1.y || startPoint == p1)
+			pDoc->ls.wherefixed = DEFAULT;
+	}
 	CView::OnMouseMove(nFlags, point);
+}
+
+
+void CPLS2View::drawingline(CPoint start, CPoint end, WhereFixed wherefixed) {
+	CPLS2Doc* pDoc = GetDocument();
+
+	CDC* pDC = GetDC();
+
+	CPen pen1(PS_SOLID, 1, RGB(0, 0, 0)); // 검정펜
+	CPen pen2(PS_SOLID, 1, RGB(255, 255, 255)); //흰펜
+
+	pDC->SelectObject(pen2);
+
+	if (old_wherefixed == GARO)
+		if (old_start.y == old_end.y) { // 1줄만 그리는경우.
+			pDC->MoveTo(old_start);
+			pDC->LineTo(old_end);
+		}
+
+		else {//두줄을 그려줘야 하는 경우.
+			pDC->MoveTo(old_start);
+			pDC->LineTo(old_end.x, old_start.y);
+
+			pDC->MoveTo(old_end.x, old_start.y);
+			pDC->LineTo(old_end);
+		}
+	else if (old_wherefixed == SERO) {
+		if (old_start.x == old_end.x) { // 1줄만 그리는경우.
+			pDC->MoveTo(old_start);
+			pDC->LineTo(old_end);
+		}
+		else {//두줄을 그려줘야 하는 경우.
+			pDC->MoveTo(old_start);
+			pDC->LineTo(old_start.x, old_end.y);
+
+			pDC->MoveTo(old_start.x, old_end.y);
+			pDC->LineTo(old_end);
+		}
+	}
+
+	pDC->SelectObject(pen1);
+
+	if (wherefixed == GARO)
+		if (start.y == end.y) { // 1줄만 그리는경우.
+			pDC->MoveTo(start);
+			pDC->LineTo(end);
+		}
+
+		else {//두줄을 그려줘야 하는 경우.
+			pDC->MoveTo(start);
+			pDC->LineTo(end.x, start.y);
+
+			pDC->MoveTo(end.x, start.y);
+			pDC->LineTo(end);
+		}
+	else if (wherefixed == SERO){
+		if (start.x == end.x) { // 1줄만 그리는경우.
+			pDC->MoveTo(start);
+			pDC->LineTo(end);
+		}
+		else {//두줄을 그려줘야 하는 경우.
+			pDC->MoveTo(start);
+			pDC->LineTo(start.x, end.y);
+
+			pDC->MoveTo(start.x, end.y);
+			pDC->LineTo(end);
+		}
+	}
+
+	old_start = start;
+	old_end = end;
+	old_wherefixed = wherefixed;
 }
 
 
@@ -220,7 +393,7 @@ void CPLS2View::Create_Input_BCLK()
 	// TODO: 여기에 명령 처리기 코드를 추가합니다.
 	CPLS2Doc* pDoc = GetDocument();
 	pDoc->ls.count_input++;
-	pDoc->ls.create = LSINPUT;
+	pDoc->ls.create = LSINPUT; //  create를 LSINPUT(0)으로 만들어 input단자를 만들겠다고 알림.
 }
 
 
@@ -229,5 +402,6 @@ void CPLS2View::Create_Output_BCLK()
 	// TODO: 여기에 명령 처리기 코드를 추가합니다.
 	CPLS2Doc* pDoc = GetDocument();
 	pDoc->ls.count_output++;
-	pDoc->ls.create = LSOUTPUT;
+	pDoc->ls.create = LSOUTPUT; //  create를 LSOUTPUT(1)으로 만들어 output단자를 만들겠다고 알림.
 }
+
