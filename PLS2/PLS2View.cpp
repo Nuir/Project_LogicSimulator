@@ -99,6 +99,11 @@ void CPLS2View::OnDraw(CDC* pDC)
 		pDC->LineTo(pDoc->ls.line[i].secondPt);
 	}
 	/////////////////////////////////////////////////////////////
+
+	for (int i = 0; i < 300; i++)
+		for (int j = 0; j < 300; j++)
+			pDC->SetPixel(i*10,j*10,RGB(0,0,0));
+
 }
 
 
@@ -203,7 +208,6 @@ void CPLS2View::OnLButtonUp(UINT nFlags, CPoint point)
 
 	SavePointOnTheLine(); // 선에대한 점을 저장.
 
-	
 
 	Invalidate();
 	///////////////////////////////////////////////////
@@ -221,6 +225,9 @@ void CPLS2View::SavePointOnTheLine() {
 	CPLS2Doc* pDoc = GetDocument();
 
 	CPoint tempP;
+
+	if (old_start == old_end)
+		return;
 
 	if (old_wherefixed == GARO)
 		if (old_start.y == old_end.y) { // 1줄만 그리는경우.
