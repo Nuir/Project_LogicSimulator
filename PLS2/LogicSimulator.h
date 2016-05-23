@@ -9,11 +9,8 @@
 
 //enum변수입니다.
 enum WhatGate { nothing, input, output, line };
-///////////////////////////////////////////////////
 enum WhereFixed { DEFAULT, SERO, GARO }; // 그림그릴 때 가로가 고정되었나 세로가 고정되었나?
 
-
-///////////////////////////////////////////////////
 class LogicSimulator
 {
 
@@ -44,19 +41,19 @@ public:
 	}pinfo;
 
 	struct Input {
-		int* value = NULL;
+		int* value = NULL; // 가지는 값.
 		CString name;
-		CPoint clicked{ -1, -1 };
-		CPoint min;
-		CPoint max;
-		CPoint output[4];
+		CPoint clicked{ -1, -1 }; // 사각형의 중점.
+		CPoint min; // 사각형의 왼쪽 끝점
+		CPoint max; // 사각형의 오른쪽 끝점
+		CPoint output[4];  // 값을 내보낼 수 있는 점.
 	};
 
 	struct Output {
-		int* value = NULL;
+		int* value = NULL; 
 		CString name;
-		CPoint clicked{ -1, -1 };
-		CPoint min;
+		CPoint clicked{ -1, -1 }; 
+		CPoint min; 
 		CPoint max;
 		CPoint input[4];
 		CPoint points[9] = { (clicked.x - 1, clicked.y - 1), (clicked.x, clicked.y - 1), (clicked.x + 1, clicked.y - 1),
@@ -69,8 +66,7 @@ public:
 	PointInfo pif[INDEX][INDEX];
 	Input in[INDEX];
 	Output out[INDEX];
-	///////<내가 건드린 부분.>////////////////////
-	
+
 	CPoint downPoint;
 	CPoint upPoint;
 
@@ -99,13 +95,12 @@ public:
 
 	WhereFixed wherefixed = DEFAULT;
 
-	//////////////////////////////////////////////
 	WhatGate whatgate = nothing;
 
 	int count_input = -1;
 	int count_output = -1;
 
-	int create = -1;
+	int create = -1; // 이 숫자에 따라 무엇을 생성할 지가 정해짐.
 
 //함수입니다.
 public:
