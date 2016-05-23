@@ -217,6 +217,9 @@
     <ResourceCompile Include="PLS2.rc" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="res\bitmap1.bmp" />
+    <Image Include="res\bitmap2.bmp" />
+    <Image Include="res\bitmap3.bmp" />
     <Image Include="res\PLS2.ico" />
     <Image Include="res\PLS2Doc.ico" />
     <Image Include="res\Toolbar.bmp" />

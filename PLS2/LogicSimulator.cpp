@@ -28,7 +28,7 @@ void LogicSimulator::OnePointClear(PointInfo pif)
 	pif.value = 0;
 }
 
-void LogicSimulator::AllPointClear(PointInfo pif[INDEX][INDEX])
+void LogicSimulator::AllPointClear()
 {
 	for (int i = 0; i < INDEX; i++)
 		for (int j = 0; j < INDEX; j++)

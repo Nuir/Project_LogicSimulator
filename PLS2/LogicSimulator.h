@@ -76,7 +76,7 @@ public:
 public:
 	LogicSimulator::LogicSimulator();
 	void OnePointClear(PointInfo pif);
-	void AllPointClear(PointInfo pif[INDEX][INDEX]);
+	void AllPointClear();
 	void print(LogicSimulator ls);
 	void create_input(Input* in, CPoint clicked);
 	void create_output(Output* out, CPoint clicked);

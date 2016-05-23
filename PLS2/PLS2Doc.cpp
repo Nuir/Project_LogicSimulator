@@ -43,6 +43,7 @@ BOOL CPLS2Doc::OnNewDocument()
 		return FALSE;
 
 	// TODO: 여기에 재초기화 코드를 추가합니다.
+	ls.AllPointClear();
 	// SDI 문서는 이 문서를 다시 사용합니다.
 
 	return TRUE;
