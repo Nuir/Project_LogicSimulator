@@ -33,7 +33,7 @@ BEGIN_MESSAGE_MAP(CPLS2View, CView)
 	ON_COMMAND(ID_32772, &CPLS2View::Create_Output_BCLK)
 END_MESSAGE_MAP()
 
-// CPLS2View 持失/社瑚
+// CPLS2View 持失/社瑚//
 
 CPLS2View::CPLS2View()
 {
