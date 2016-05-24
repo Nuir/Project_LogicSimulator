@@ -59,31 +59,29 @@ public:
 		CPoint points[9] = { (clicked.x - 1, clicked.y - 1), (clicked.x, clicked.y - 1), (clicked.x + 1, clicked.y - 1),
 							 (clicked.x - 1, clicked.y) ,    (clicked.x, clicked.y) ,    (clicked.x + 1, clicked.y) ,
 							 (clicked.x - 1, clicked.y + 1), (clicked.x, clicked.y + 1), (clicked.x + 1, clicked.y + 1) };
+
+	};
+
+	struct TwoPt {
+
+		CPoint firstPt;
+		CPoint secondPt;
+		TwoPt() {}
+		TwoPt(CPoint a, CPoint b) {
+			firstPt = a;
+			secondPt = b;
+		}
 	};
 
 //변수입니다.
 public:
-	PointInfo pif[INDEX][INDEX];
+	PointInfo pif[INDEX][INDEX];// 
 	Input in[INDEX];
 	Output out[INDEX];
 
 	CPoint downPoint;
 	CPoint upPoint;
 
-	struct TwoPt {
-
-		CPoint firstPt;
-		CPoint secondPt;
-		TwoPt() {
-
-		}
-
-		TwoPt(CPoint a, CPoint b) {
-			firstPt = a;
-			secondPt = b;
-		}
-
-	};
 
 	TwoPt GetTwoPt(CPoint a, CPoint b) {
 		TwoPt *p;
@@ -92,16 +90,13 @@ public:
 	}
 
 	CArray<TwoPt, TwoPt&> line; // TwoPoint의 배열.
-	void SavePointOnTheLine(CPoint old_start, CPoint old_end, WhereFixed old_wherefixed);
 
 
 	WhereFixed wherefixed = DEFAULT;
-
 	WhatGate whatgate = nothing;
 
 	int count_input = -1;
 	int count_output = -1;
-
 	int create = -1; // 이 숫자에 따라 무엇을 생성할 지가 정해짐.
 
 //함수입니다.
@@ -112,4 +107,5 @@ public:
 	void print(LogicSimulator ls);
 	void create_input(Input* in, CPoint clicked);
 	void create_output(Output* out, CPoint clicked);
+	void SavePointOnTheLine(CPoint old_start, CPoint old_end, WhereFixed old_wherefixed);
 };

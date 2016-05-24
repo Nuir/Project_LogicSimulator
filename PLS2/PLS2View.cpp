@@ -83,8 +83,8 @@ void CPLS2View::OnDraw(CDC* pDC)
 	int i = 0;
 
 	//격자를 그림
-	for (int i = 0; i < 300; i++)
-		for (int j = 0; j < 300; j++)
+	for (int i = 0; i < 200; i++)
+		for (int j = 0; j < 100; j++)
 			pDC->SetPixel(i * 10, j * 10, RGB(0, 0, 0));
 
 	//그려진 선을 그림
@@ -208,7 +208,8 @@ void CPLS2View::OnLButtonUp(UINT nFlags, CPoint point)
 	CClientDC dc(this);
 	pDoc->ls.upPoint = DividedByTen(point); //마우스를 누르기 시작한 지점의 좌표를 받을 수 있음.
 
-	pDoc->ls.SavePointOnTheLine(old_start, old_end, old_wherefixed); // 선에대한 점을 저장.
+	pDoc->ls.SavePointOnTheLine(old_start
+		, old_end, old_wherefixed); // 선에대한 점을 저장.
 
 	Invalidate();
 
@@ -237,16 +238,18 @@ void CPLS2View::OnMouseMove(UINT nFlags, CPoint point)
 	if (pDoc->ls.create >= 0) {
 		switch (pDoc->ls.create) {
 		case LSINPUT:
-			if (point.x % 5 == 0 || point.y % 5 == 0) {
-				Invalidate();
+			if (oldpoint != p1) {
+				Invalidate(0);
 			}
 			dc.Rectangle(p1.x - 10, p1.y - 10, p1.x + 10, p1.y + 10);
+			oldpoint = p1;
 			break;
 		case LSOUTPUT:
-			if(point.x % 5 == 0 || point.y % 5 == 0) {
-				Invalidate();
+			if (oldpoint != p1) {
+				Invalidate(0);
 			}
 			dc.Ellipse(p1.x - 10, p1.y - 10, p1.x + 10, p1.y + 10);
+			oldpoint = p1;
 			break;
 		}
 	}
@@ -267,6 +270,9 @@ void CPLS2View::OnMouseMove(UINT nFlags, CPoint point)
 		}
 
 		//선을 저장하지는 않고 움진인 위치로 그리기만 함.
+		if (oldpoint != p1) {
+			Invalidate(false);
+		}
 		drawingline(startPoint, p1, pDoc->ls.wherefixed);
 
 		//고정된 것을 초기상태로 돌려줘야 할 때 (초기상태)로 돌려줌.
@@ -275,6 +281,7 @@ void CPLS2View::OnMouseMove(UINT nFlags, CPoint point)
 
 		else if (pDoc->ls.wherefixed == SERO && startPoint.y == p1.y || startPoint == p1)
 			pDoc->ls.wherefixed = DEFAULT;
+		oldpoint = p1;
 	}
 	CView::OnMouseMove(nFlags, point);
 }
